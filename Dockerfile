@@ -1,29 +1,34 @@
-# ---------- Build client ----------
-FROM node:20 AS client-builder
-WORKDIR /app/client
-COPY client/package*.json ./
-RUN npm ci
-COPY client/ ./
-RUN npm run build
+# ====== Stage 1: Build Frontend ======
+FROM node:18-alpine AS client-build
+WORKDIR /app
 
-# ---------- Install server deps ----------
-FROM node:20 AS server-deps
+# Copy client files
+COPY client/package*.json ./client/
+RUN cd client && npm ci
+
+COPY client ./client
+
+# ให้สิทธิ์ run vite ได้
+RUN chmod +x /app/client/node_modules/.bin/vite
+
+# Build React (Vite)
+RUN cd client && npm run build
+
+# ====== Stage 2: Setup Server ======
+FROM node:18-alpine AS server
+WORKDIR /app
+
+# Copy server files
+COPY server/package*.json ./server/
+RUN cd server && npm ci --omit=dev
+
+COPY server ./server
+
+# Copy built frontend to server public folder
+COPY --from=client-build /app/client/dist ./server/public
+
 WORKDIR /app/server
-COPY server/package*.json ./
-RUN npm ci --omit=dev
 
-# ---------- Final image ----------
-FROM node:20
-WORKDIR /app/server
-
-# Copy server code
-COPY server/ ./
-
-# Copy built client into server/public
-COPY --from=client-builder /app/client/dist ./public
-
-# Copy server node_modules
-COPY --from=server-deps /app/server/node_modules ./node_modules
-
+ENV NODE_ENV=production
 EXPOSE 4000
-CMD ["node","src/server.js"]
+CMD ["node", "src/server.js"]
