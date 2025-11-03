@@ -1,5 +1,20 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;600;700&display=swap');
 
-body { @apply bg-gray-50 text-gray-900; }
+:root{
+  --header-h: 64px;
+}
+
+html, body, #root { height: 100%; }
+body { @apply bg-temple-paper text-temple-ink font-body; }
+
+/* แถบสกรีนกราเดียนต์ด้านบนทุกหน้า */
+.page-wrap { @apply min-h-screen bg-radial-temple; }
+
+.container-xx { @apply max-w-6xl mx-auto px-4; }
+
+.card { @apply bg-white rounded-2xl shadow-soft border border-black/5; }
+.card-hover { @apply transition-transform hover:-translate-y-0.5 hover:shadow-gold; }
+
+.btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-semibold; }
+.btn-primary { @apply bg-temple-gold text-black hover:brightness-95 shadow-gold; }
+.btn-outline { @apply border border-temple-gold text-temple-gold hover:bg-temple-gold/10; }
